@@ -54,23 +54,29 @@ if CLIENT then
 
     local function CalculateDistanceToPing( units, speed )
         local unit = 6
-        if ( unit == 1 ) then // Kilometres/Kilometry
+        if ( unit == 1 ) then -- Kilometres/Kilometry
             if ( speed ) then return units * 1.905 / 100000 * 3600 end
             return units * 1.905 / 100000
-        elseif ( unit == 2 ) then // Meters/Metry
+        elseif ( unit == 2 ) then -- Meters/Metry
             return units * 1.905 / 100
-        elseif ( unit == 3 ) then // Centimetres/Centymetry
+        elseif ( unit == 3 ) then -- Centimetres/Centymetry
             return units * 1.905
-        elseif ( unit == 4 ) then // Miles/Mile
+        elseif ( unit == 4 ) then -- Miles/Mile
             if ( speed ) then return units * ( 1 / 16 ) / 5280 * 3600 end
             return units * ( 1 / 16 ) / 5280
-        elseif ( unit == 5 ) then // Inch/Cal
+        elseif ( unit == 5 ) then -- Inch/Cal
             return units * 0.75
-        elseif ( unit == 6 ) then // Foot/Stopa
+        elseif ( unit == 6 ) then -- Foot/Stopa
             return units * ( 1 / 16 )
         end
     
         return units
+    end
+
+    local function DrawIcon(color, material, x, y, rotation)
+        SurfaceColor(color)
+        SurfaceMaterial(material)
+        surface.DrawTexturedRectRotated(x, y, 35, 35, rotation or 0)
     end
 
     local function DisplayPings()
@@ -135,242 +141,47 @@ if CLIENT then
                 local PingArrowY = PingY + math.sin(OnScreenPingPosition) * arrowMargin
 
                 
-                
-
-                if PingType == "default" then
-                    if (PingScreen.x < 0 or PingScreen.x > ScrW() or PingScreen.y < 0 or PingScreen.y > ScrH()) then
-                        SurfaceColor(plycolor)
-                        SurfaceMaterial(DefPing)
-                        SurfaceDrawTexturedRectRotated(PingX, PingY, 35, 35, 0)
-                        SurfaceColor(255,255,255,255)
-                        SurfaceMaterial(ArrowPing)
-                        SurfaceDrawTexturedRectRotated(PingArrowX, PingArrowY, 35, 35, PingArrowRotation - 90)
-                        if PingY < 800 then
-                            draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                        else
-                            draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY - 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                        end
+                local white = Color(255, 255, 255, 255)
+                local pingMaterials = {
+                    ["default"] = DefPing,
+                    ["enemy"] = EnemyPing,
+                    ["defend"] = DefendPing,
+                    ["look"] = LookPing,
+                    ["attack"] = AttackPing,
+                    ["supply"] = SupplyPing,
+                    ["assist"] = AssistPing,
+                    ["missing"] = MissingPing
+                }
+                local specialPingColors = {
+                    ["enemy"] = white
+                }
+                if (PingScreen.x < 0 or PingScreen.x > ScrW() or PingScreen.y < 0 or PingScreen.y > ScrH()) then
+                    DrawIcon(specialPingColors[PingType] or plycolor, pingMaterials[PingType], PingX, PingY)
+                    DrawIcon(white, ArrowPing, PingArrowX, PingArrowY, PingArrowRotation - 90)
+                    if PingY < 800 then
+                        draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
                     else
-                        SurfaceColor(plycolor)
-                        SurfaceMaterial(DefPing)
-                        SurfaceDrawTexturedRectRotated(PingScreen.x, PingScreen.y, 35, 35, 0)
-                        draw.SimpleTextOutlined(pingdist, "TargetID", PingScreen.x, PingScreen.y + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
+                        draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY - 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
                     end
-                elseif PingType == "enemy" then
-                    if (PingScreen.x < 0 or PingScreen.x > ScrW() or PingScreen.y < 0 or PingScreen.y > ScrH()) then
-                        SurfaceColor(255, 255, 255, 255)
-                        SurfaceMaterial(EnemyPing)
-                        SurfaceDrawTexturedRectRotated(PingX, PingY, 35, 35, 0)
-                        SurfaceColor(255,255,255,255)
-                        SurfaceMaterial(ArrowPing)
-                        SurfaceDrawTexturedRectRotated(PingArrowX, PingArrowY, 35, 35, PingArrowRotation - 90)
-                        if PingY < 800 then
-                            draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                        else
-                            draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY - 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                        end
-                    else
-                        SurfaceColor(255, 255, 255, 255)
-                        SurfaceMaterial(EnemyPing)
-                        SurfaceDrawTexturedRectRotated(PingScreen.x, PingScreen.y, 35, 35, 0)
-                        draw.SimpleTextOutlined(pingdist, "TargetID", PingScreen.x, PingScreen.y + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                    end
-                elseif PingType == "defend" then
-                    if (PingScreen.x < 0 or PingScreen.x > ScrW() or PingScreen.y < 0 or PingScreen.y > ScrH()) then
-                        SurfaceColor(plycolor)
-                        SurfaceMaterial(DefendPing)
-                        SurfaceDrawTexturedRectRotated(PingX, PingY, 35, 35, 0)
-                        SurfaceColor(255,255,255,255)
-                        SurfaceMaterial(ArrowPing)
-                        SurfaceDrawTexturedRectRotated(PingArrowX, PingArrowY, 35, 35, PingArrowRotation - 90)
-                        if PingY < 800 then
-                            draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                        else
-                            draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY - 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                        end
-                    else
-                        SurfaceColor(plycolor)
-                        SurfaceMaterial(DefendPing)
-                        SurfaceDrawTexturedRectRotated(PingScreen.x, PingScreen.y, 35, 35, 0)
-                        draw.SimpleTextOutlined(pingdist, "TargetID", PingScreen.x, PingScreen.y + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                    end
-                elseif PingType == "look" then
-                    if (PingScreen.x < 0 or PingScreen.x > ScrW() or PingScreen.y < 0 or PingScreen.y > ScrH()) then
-                        SurfaceColor(plycolor)
-                        SurfaceMaterial(LookPing)
-                        SurfaceDrawTexturedRectRotated(PingX, PingY, 35, 35, 0)
-                        SurfaceColor(255,255,255,255)
-                        SurfaceMaterial(ArrowPing)
-                        SurfaceDrawTexturedRectRotated(PingArrowX, PingArrowY, 35, 35, PingArrowRotation - 90)
-                        if PingY < 800 then
-                            draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                        else
-                            draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY - 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                        end
-                    else
-                        SurfaceColor(plycolor)
-                        SurfaceMaterial(LookPing)
-                        SurfaceDrawTexturedRectRotated(PingScreen.x, PingScreen.y, 35, 35, 0)
-                        draw.SimpleTextOutlined(pingdist, "TargetID", PingScreen.x, PingScreen.y + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                    end
-                elseif PingType == "attack" then
-                    if (PingScreen.x < 0 or PingScreen.x > ScrW() or PingScreen.y < 0 or PingScreen.y > ScrH()) then
-                        SurfaceColor(plycolor)
-                        SurfaceMaterial(AttackPing)
-                        SurfaceDrawTexturedRectRotated(PingX, PingY, 35, 35, 0)
-                        SurfaceColor(255,255,255,255)
-                        SurfaceMaterial(ArrowPing)
-                        SurfaceDrawTexturedRectRotated(PingArrowX, PingArrowY, 35, 35, PingArrowRotation - 90)
-                        if PingY < 800 then
-                            draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                        else
-                            draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY - 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                        end
-                    else
-                        SurfaceColor(plycolor)
-                        SurfaceMaterial(AttackPing)
-                        SurfaceDrawTexturedRectRotated(PingScreen.x, PingScreen.y, 35, 35, 0)
-                        draw.SimpleTextOutlined(pingdist, "TargetID", PingScreen.x, PingScreen.y + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                    end
-                elseif PingType == "supply" then
-                    if (PingScreen.x < 0 or PingScreen.x > ScrW() or PingScreen.y < 0 or PingScreen.y > ScrH()) then
-                        SurfaceColor(plycolor)
-                        SurfaceMaterial(SupplyPing)
-                        SurfaceDrawTexturedRectRotated(PingX, PingY, 35, 35, 0)
-                        SurfaceColor(255,255,255,255)
-                        SurfaceMaterial(ArrowPing)
-                        SurfaceDrawTexturedRectRotated(PingArrowX, PingArrowY, 35, 35, PingArrowRotation - 90)
-                        if PingY < 800 then
-                            draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                        else
-                            draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY - 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                        end
-                    else
-                        SurfaceColor(plycolor)
-                        SurfaceMaterial(SupplyPing)
-                        SurfaceDrawTexturedRectRotated(PingScreen.x, PingScreen.y, 35, 35, 0)
-                        draw.SimpleTextOutlined(pingdist, "TargetID", PingScreen.x, PingScreen.y + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                    end
-                elseif PingType == "assist" then
-                    if (PingScreen.x < 0 or PingScreen.x > ScrW() or PingScreen.y < 0 or PingScreen.y > ScrH()) then
-                        SurfaceColor(plycolor)
-                        SurfaceMaterial(AssistPing)
-                        SurfaceDrawTexturedRectRotated(PingX, PingY, 35, 35, 0)
-                        SurfaceColor(255,255,255,255)
-                        SurfaceMaterial(ArrowPing)
-                        SurfaceDrawTexturedRectRotated(PingArrowX, PingArrowY, 35, 35, PingArrowRotation - 90)
-                        if PingY < 800 then
-                            draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                        else
-                            draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY - 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                        end
-                    else
-                        SurfaceColor(plycolor)
-                        SurfaceMaterial(AssistPing)
-                        SurfaceDrawTexturedRectRotated(PingScreen.x, PingScreen.y, 35, 35, 0)
-                        draw.SimpleTextOutlined(pingdist, "TargetID", PingScreen.x, PingScreen.y + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                    end
-                elseif PingType == "missing" then
-                    if (PingScreen.x < 0 or PingScreen.x > ScrW() or PingScreen.y < 0 or PingScreen.y > ScrH()) then
-                        SurfaceColor(plycolor)
-                        SurfaceMaterial(MissingPing)
-                        SurfaceDrawTexturedRectRotated(PingX, PingY, 35, 35, 0)
-                        SurfaceColor(255,255,255,255)
-                        SurfaceMaterial(ArrowPing)
-                        SurfaceDrawTexturedRectRotated(PingArrowX, PingArrowY, 35, 35, PingArrowRotation - 90)
-                        if PingY < 800 then
-                            draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                        else
-                            draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY - 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                        end
-                    else
-                        SurfaceColor(plycolor)
-                        SurfaceMaterial(MissingPing)
-                        SurfaceDrawTexturedRectRotated(PingScreen.x, PingScreen.y, 35, 35, 0)
-                        draw.SimpleTextOutlined(pingdist, "TargetID", PingScreen.x, PingScreen.y + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
-                    end
+                else
+                    DrawIcon(specialPingColors[PingType] or plycolor, pingMaterials[PingType], PingScreen.x, PingScreen.y)
+                    draw.SimpleTextOutlined(pingdist, "TargetID", PingScreen.x, PingScreen.y + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))    
                 end
 
-                if PingType == "default" then
-                    if not validping.PingSoundPlayed then
-                        if Owner ~= ply:Nick() then
-                            chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), Owner, Color(255,255,255), " marked a location.")
-                        else
-                            chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), "You", Color(255,255,255), " marked a location.")
-                        end
-                        validping.PingSoundPlayed = true
-                        surface.PlaySound(PingSound)
-                    end
-                elseif PingType == "defend" then
-                    if not validping.PingSoundPlayed then
-                        if Owner ~= ply:Nick() then
-                            chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), Owner, Color(255,255,255), " is defending this position.")
-                        else
-                            chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), "You", Color(255,255,255), " are defending this position.")
-                        end
-                        validping.PingSoundPlayed = true
-                        surface.PlaySound(PingSound)
-                    end
-                elseif PingType == "look" then
-                    if not validping.PingSoundPlayed then
-                        if Owner ~= ply:Nick() then
-                            chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), Owner, Color(255,255,255), " wants to look here.")
-                        else
-                            chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), "You", Color(255,255,255), " want to look here.")
-                        end
-                        validping.PingSoundPlayed = true
-                        surface.PlaySound(PingSound)
-                    end
-                elseif PingType == "attack" then
-                    if not validping.PingSoundPlayed then
-                        if Owner ~= ply:Nick() then
-                            chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), Owner, Color(255,255,255), " is attacking this position.")
-                        else
-                            chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), "You", Color(255,255,255), " are attacking this position.")
-                        end
-                        validping.PingSoundPlayed = true
-                        surface.PlaySound(PingSound)
-                    end
-                elseif PingType == "supply" then
-                    if not validping.PingSoundPlayed then
-                        if Owner ~= ply:Nick() then
-                            chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), Owner, Color(255,255,255), " has found some supplies.")
-                        else
-                            chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), "You", Color(255,255,255), " have found some supplies.")
-                        end
-                        validping.PingSoundPlayed = true
-                        surface.PlaySound(PingSound)
-                    end
-                elseif PingType == "assist" then
-                    if not validping.PingSoundPlayed then
-                        if Owner ~= ply:Nick() then
-                            chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), Owner, Color(255,255,255), " asks for assistance.")
-                        else
-                            chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), "You", Color(255,255,255), " are asking for assistance.")
-                        end
-                        validping.PingSoundPlayed = true
-                        surface.PlaySound(PingSound)
-                    end
-                elseif PingType == "enemy" then
-                    if not validping.PingSoundPlayed then
-                        if Owner ~= ply:Nick() then
-                            chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), Owner, Color(255,255,255), " has spotted a ", Color(255, 0, 0), "enemy.")
-                        else
-                            chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), "You", Color(255,255,255), " has spotted a ", Color(255, 0, 0), "enemy.")
-                        end
-                        validping.PingSoundPlayed = true
-                        surface.PlaySound(EnemySound)
-                    end
-                elseif PingType == "missing" then
-                    if not validping.PingSoundPlayed then
-                        if Owner ~= ply:Nick() then
-                            chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), Owner, Color(255,255,255), " signals that enemies are missing.")
-                        else
-                            chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), "You", Color(255,255,255), " signals that enemies are missing.")
-                        end
-                        validping.PingSoundPlayed = true
-                        surface.PlaySound(PingSound)
-                    end
+                local pingChatMesssages = {
+                    ["default"] = " marked a location.",
+                    ["defend"] = " is defending this position.",
+                    ["look"] = " wants to look here.",
+                    ["attack"] = " is attacking this position.",
+                    ["supply"] = " has found some supplies.",
+                    ["assist"] = " asks for assistance.",
+                    ["enemy"] = " has spotted an enemy.",
+                    ["missing"] = " signals that enemies are missing."
+                }
+                if not validping.PingSoundPlayed then
+                    chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), Owner, Color(255,255,255), pingChatMesssages[PingType])
+                    surface.PlaySound(PingSound)
+                    validping.PingSoundPlayed = true
                 end
             end
         end
