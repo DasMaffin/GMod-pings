@@ -41,15 +41,18 @@ if CLIENT then
     local PingData = {}
     local PingSound = Sound("npc/metropolice/vo/off2.wav")
     local EnemySound = Sound("npc/combine_gunship/gunship_ping_search.wav")
-    local ArrowPing = Material("materials/ping/arrow.png")
-    local DefPing = Material("materials/ping/def.png")
-    local EnemyPing = Material("materials/ping/target.png")
-    local DefendPing = Material("materials/ping/defend.png")
-    local LookPing = Material("materials/ping/look.png")
-    local AttackPing = Material("materials/ping/attack.png")
-    local SupplyPing = Material("materials/ping/supply.png")
-    local AssistPing = Material("materials/ping/assist.png")
-    local MissingPing = Material("materials/ping/missing.png")
+    local ArrowPing = Material("materials/ping/arrow.png")    
+    local pingPrefabs = {
+        ["default"] = {material = Material("materials/ping/def.png"), message = " marked a location."},
+        ["enemy"] = {material = Material("materials/ping/target.png"), message = " has spotted an enemy."},
+        ["defend"] = {material = Material("materials/ping/defend.png"), message = " is defending this position."},
+        ["look"] = {material = Material("materials/ping/look.png"), message = " wants to look here."},
+        ["attack"] = {material = Material("materials/ping/attack.png"), message = " is attacking this position."},
+        ["supply"] = {material = Material("materials/ping/supply.png"), message = " has found some supplies."},
+        ["assist"] = {material = Material("materials/ping/assist.png"), message = " asks for assistance."},
+        ["missing"] = {material = Material("materials/ping/missing.png"), message = " signals that enemies are missing."}
+    }
+
     local CanSeePings = CreateClientConVar("pingsystem_allcansee", 0, true, false, "Can all players see pings? (SERVER SETTING)", 0, 1)
 
     local function CalculateDistanceToPing( units, speed )
@@ -140,23 +143,12 @@ if CLIENT then
                 local PingArrowX = PingX + math.cos(OnScreenPingPosition) * arrowMargin
                 local PingArrowY = PingY + math.sin(OnScreenPingPosition) * arrowMargin
 
-                
                 local white = Color(255, 255, 255, 255)
-                local pingMaterials = {
-                    ["default"] = DefPing,
-                    ["enemy"] = EnemyPing,
-                    ["defend"] = DefendPing,
-                    ["look"] = LookPing,
-                    ["attack"] = AttackPing,
-                    ["supply"] = SupplyPing,
-                    ["assist"] = AssistPing,
-                    ["missing"] = MissingPing
-                }
                 local specialPingColors = {
                     ["enemy"] = white
                 }
                 if (PingScreen.x < 0 or PingScreen.x > ScrW() or PingScreen.y < 0 or PingScreen.y > ScrH()) then
-                    DrawIcon(specialPingColors[PingType] or plycolor, pingMaterials[PingType], PingX, PingY)
+                    DrawIcon(specialPingColors[PingType] or plycolor, pingPrefabs[PingType].material, PingX, PingY)
                     DrawIcon(white, ArrowPing, PingArrowX, PingArrowY, PingArrowRotation - 90)
                     if PingY < 800 then
                         draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
@@ -164,22 +156,12 @@ if CLIENT then
                         draw.SimpleTextOutlined(pingdist, "TargetID", PingX, PingY - 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))
                     end
                 else
-                    DrawIcon(specialPingColors[PingType] or plycolor, pingMaterials[PingType], PingScreen.x, PingScreen.y)
+                    DrawIcon(specialPingColors[PingType] or plycolor, pingPrefabs[PingType].material, PingScreen.x, PingScreen.y)
                     draw.SimpleTextOutlined(pingdist, "TargetID", PingScreen.x, PingScreen.y + 25, plycolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 0.5, Color(0,0,0, 255))    
                 end
 
-                local pingChatMesssages = {
-                    ["default"] = " marked a location.",
-                    ["defend"] = " is defending this position.",
-                    ["look"] = " wants to look here.",
-                    ["attack"] = " is attacking this position.",
-                    ["supply"] = " has found some supplies.",
-                    ["assist"] = " asks for assistance.",
-                    ["enemy"] = " has spotted an enemy.",
-                    ["missing"] = " signals that enemies are missing."
-                }
                 if not validping.PingSoundPlayed then
-                    chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), Owner, Color(255,255,255), pingChatMesssages[PingType])
+                    chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), Owner, Color(255,255,255), pingPrefabs[PingType].message or " marked a location.")
                     surface.PlaySound(PingSound)
                     validping.PingSoundPlayed = true
                 end
