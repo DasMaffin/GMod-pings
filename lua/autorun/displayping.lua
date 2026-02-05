@@ -77,8 +77,8 @@ if CLIENT then
     end
 
     local function DrawIcon(color, material, x, y, rotation)
-        SurfaceColor(color)
-        SurfaceMaterial(material)
+        surface.SetDrawColor(color)
+        surface.SetMaterial(material)
         surface.DrawTexturedRectRotated(x, y, 35, 35, rotation or 0)
     end
 
@@ -91,9 +91,7 @@ if CLIENT then
         local HalfScreenY = ScrH() / 2
         local PingArrowRadius = ScrH() * 0.46
         local PingRadius = math.max(ScrW(), ScrH())
-
-        local SurfaceColor = surface.SetDrawColor
-        local SurfaceMaterial = surface.SetMaterial
+        
         local SurfaceDrawTexturedRectRotated = surface.DrawTexturedRectRotated
         local DrawSimpleText = draw.SimpleText
 
