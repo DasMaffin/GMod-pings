@@ -37,8 +37,10 @@ end
 
 
 if CLIENT then
-
-    local User = LocalPlayer()
+    local User = User or LocalPlayer()
+    hook.Add( "InitPostEntity", "some_unique_name", function()
+        User = LocalPlayer()
+    end )
 
     local function PingMarker(ply, pingtype)
         local User = ply
@@ -68,14 +70,14 @@ if CLIENT then
     local PingMenu = nil
 
     
-    local function rename(pingMaterial)        
+    local function createPingMenuEntry(pingKey,pingMaterial, frame, offsetX, offsetY)
         local vguiElement = vgui.Create("DImageButton", frame)
 
         vguiElement:SetMaterial(pingMaterial)
         vguiElement:SetSize(50, 50)
-        vguiElement:SetPos(frame:GetWide() / 2 - vguiElement:GetWide() / 2, 10)
+        vguiElement:SetPos(offsetX, offsetY)
         vguiElement.DoClick = function()
-            PingMarker(User, "default")
+            PingMarker(User, pingKey)
             User:EmitSound("weapons/ar2/ar2_empty.wav", 70, 100, PING.PingVolume/100)
             frame:Remove()
         end
@@ -90,8 +92,23 @@ if CLIENT then
         frame:SetKeyboardInputEnabled(false)
         frame:SetBackgroundColor(Color(50,50,50))
 
-        for key, val in pairs(PING.pingPrefabs) do
-            rename(val.material)
+        local offsetX, offsetY, yCounter = 15, 15, 0
+        for _, key in ipairs(PING.pingOrder) do
+            local val = PING.pingPrefabs[key]
+            print(key)
+            createPingMenuEntry(key, val.material, frame, offsetX, offsetY)
+
+            local offsetIncrease = 110
+            if yCounter == 1 then
+                offsetX = offsetX + offsetIncrease * 2
+            else
+                offsetX = offsetX + offsetIncrease
+            end
+            if offsetX > 240 then
+                offsetX = 15
+                offsetY = offsetY + offsetIncrease
+                yCounter = yCounter + 1
+            end
         end
         return frame
     end
