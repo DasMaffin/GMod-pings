@@ -1,6 +1,24 @@
 if SERVER then
     util.AddNetworkString("SendPingPosition")
 
+    local function createPingMarker(pingPosition, ply, PingType, TeamPing, WhoPinged, parent)
+        local WhoPinged = net.ReadString()  
+        local Anim = net.ReadEntity()
+
+        local pingMarker = ents.Create("ent_ping_marker")
+        pingMarker:SetPos(pingPosition)
+        pingMarker:SetParent(parent)
+        pingMarker:SetCreator(ply)
+        pingMarker:SetNWString("PingType", PingType)
+        pingMarker:SetNWString("Team", TeamPing)
+        pingMarker:SetNWString("Owner", WhoPinged)
+        pingMarker:Spawn()
+        
+        net.Start("VManip_SimplePlay")
+        net.WriteString("PingFinger")
+        net.Send(Anim)
+    end
+
     net.Receive("SendPingPosition", function(len, ply)
         local pingPosition = net.ReadVector()
         local PingType = net.ReadString()
@@ -11,35 +29,10 @@ if SERVER then
             local entIndex = net.ReadUInt(16)
             local ent = Entity(entIndex)
             if not IsValid(ent) then return end
-            local WhoPinged = net.ReadString()
-            local Anim = net.ReadEntity()
 
-            local pingMarker = ents.Create("ent_ping_marker")
-            pingMarker:SetPos(pingPosition)
-            pingMarker:SetParent(ent)
-            pingMarker:SetCreator(ply)
-            pingMarker:SetNWString("PingType", PingType)
-            pingMarker:SetNWString("Team", TeamPing)
-            pingMarker:SetNWString("Owner", WhoPinged)
-            pingMarker:Spawn()
-
-            net.Start("VManip_SimplePlay")
-            net.WriteString("PingFinger")
-            net.Send(Anim)
+            createPingMarker(pingPosition, ply, PingType, TeamPing, WhoPinged, ent)
         else
-            local WhoPinged = net.ReadString()
-            local Anim = net.ReadEntity()
-            local pingMarker = ents.Create("ent_ping_marker")
-            pingMarker:SetPos(pingPosition)
-            pingMarker:SetCreator(ply)
-            pingMarker:SetNWString("PingType", PingType)
-            pingMarker:SetNWString("Team", TeamPing)
-            pingMarker:SetNWString("Owner", WhoPinged)
-            pingMarker:Spawn()
-            
-            net.Start("VManip_SimplePlay")
-            net.WriteString("PingFinger")
-            net.Send(Anim)
+            createPingMarker(pingPosition, ply, PingType, TeamPing, WhoPinged)
         end
     end)
 end
@@ -75,14 +68,20 @@ if CLIENT then
     end
 
     local PingMenu = nil
-    local pingDefMat = Material("materials/ping/def.png")
-    local pingEnemyMat = Material("materials/ping/target.png")
-    local pingDefendMat = Material("materials/ping/defend.png")
-    local pingLookMat = Material("materials/ping/look.png")
-    local pingAttackMat = Material("materials/ping/attack.png")
-    local pingSupplyMat = Material("materials/ping/supply.png")
-    local pingAssistMat = Material("materials/ping/assist.png")
-    local pingMissingMat = Material("materials/ping/missing.png")
+
+    
+    local function rename(pingMaterial)        
+        local vguiElement = vgui.Create("DImageButton", frame)
+
+        vguiElement:SetMaterial(pingMaterial)
+        vguiElement:SetSize(50, 50)
+        vguiElement:SetPos(frame:GetWide() / 2 - vguiElement:GetWide() / 2, 10)
+        vguiElement.DoClick = function()
+            PingMarker(User, "default")
+            surface.PlaySound("weapons/ar2/ar2_empty.wav")
+            frame:Remove()
+        end
+    end
 
     function CreatePingMenu()
         local User = LocalPlayer()
@@ -94,87 +93,9 @@ if CLIENT then
         frame:SetKeyboardInputEnabled(false)
         frame:SetBackgroundColor(Color(50,50,50))
 
-        local pingDef = vgui.Create("DImageButton", frame)
-        pingDef:SetMaterial(pingDefMat)
-        pingDef:SetSize(50, 50)
-        pingDef:SetPos(frame:GetWide() / 2 - pingDef:GetWide() / 2, 10)
-        pingDef.DoClick = function()
-            PingMarker(User, "default")
-            surface.PlaySound("weapons/ar2/ar2_empty.wav")
-            frame:Remove()
+        for key, val in pairs(PING.pingPrefabs) do
+            rename(val.material)
         end
-
-        local pingEnemy = vgui.Create("DImageButton", frame)
-        pingEnemy:SetMaterial(pingEnemyMat)
-        pingEnemy:SetSize(50, 50)
-        pingEnemy:SetPos(frame:GetWide() / 2 - pingEnemy:GetWide() / 2, 230)
-        pingEnemy.DoClick = function()
-            PingMarker(User, "enemy")
-            surface.PlaySound("weapons/ar2/ar2_empty.wav")
-            frame:Remove()
-        end
-
-        local pingDefend = vgui.Create("DImageButton", frame)
-        pingDefend:SetMaterial(pingDefendMat)
-        pingDefend:SetSize(50, 50)
-        pingDefend:SetPos(frame:GetWide() / 2 + 90, 125)
-        pingDefend.DoClick = function()
-            PingMarker(User, "defend")
-            surface.PlaySound("weapons/ar2/ar2_empty.wav")
-            frame:Remove()
-        end
-
-        local pingLook = vgui.Create("DImageButton", frame)
-        pingLook:SetMaterial(pingLookMat)
-        pingLook:SetSize(50, 50)
-        pingLook:SetPos(frame:GetWide() / 2 - 140, 125)
-        pingLook.DoClick = function()
-            PingMarker(User, "look")
-            surface.PlaySound("weapons/ar2/ar2_empty.wav")
-            frame:Remove()
-        end
-
-        local pingAttack = vgui.Create("DImageButton", frame)
-        pingAttack:SetMaterial(pingAttackMat)
-        pingAttack:SetSize(50, 50)
-        pingAttack:SetPos(frame:GetWide() / 2 + 90, 10)
-        pingAttack.DoClick = function()
-            PingMarker(User, "attack")
-            surface.PlaySound("weapons/ar2/ar2_empty.wav")
-            frame:Remove()
-        end
-
-        local pingSupply = vgui.Create("DImageButton", frame)
-        pingSupply:SetMaterial(pingSupplyMat)
-        pingSupply:SetSize(50, 50)
-        pingSupply:SetPos(frame:GetWide() / 2 - 140, 10)
-        pingSupply.DoClick = function()
-            PingMarker(User, "supply")
-            surface.PlaySound("weapons/ar2/ar2_empty.wav")
-            frame:Remove()
-        end
-
-        local pingAssist = vgui.Create("DImageButton", frame)
-        pingAssist:SetMaterial(pingAssistMat)
-        pingAssist:SetSize(50, 50)
-        pingAssist:SetPos(frame:GetWide() / 2 - 140, 230)
-        pingAssist.DoClick = function()
-            PingMarker(User, "assist")
-            surface.PlaySound("weapons/ar2/ar2_empty.wav")
-            frame:Remove()
-        end
-
-        local pingMissing = vgui.Create("DImageButton", frame)
-        pingMissing:SetMaterial(pingMissingMat)
-        pingMissing:SetSize(50, 50)
-        pingMissing:SetPos(frame:GetWide() / 2 + 90, 230)
-        pingMissing.DoClick = function()
-            PingMarker(User, "missing")
-            surface.PlaySound("weapons/ar2/ar2_empty.wav")
-            frame:Remove()
-        end
-
-
         return frame
     end
 
