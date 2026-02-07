@@ -41,7 +41,6 @@ local function DisplayPings()
     local SurfaceDrawTexturedRectRotated = surface.DrawTexturedRectRotated
     local DrawSimpleText = draw.SimpleText
 
-
     for pingindex, ping in pairs(PingData) do
         local CanSeePings = GetConVar("pingsystem_allcansee"):GetBool()
         local validping = Entity(pingindex)

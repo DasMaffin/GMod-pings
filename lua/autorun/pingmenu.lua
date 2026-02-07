@@ -84,7 +84,6 @@ if CLIENT then
     end
 
     function CreatePingMenu()
-        local User = LocalPlayer()
         local frame = vgui.Create("DPanel")
         frame:SetSize(300, 300)
         frame:Center()
@@ -102,6 +101,7 @@ if CLIENT then
     function OpenPingMenu(ply)
         if not IsValid(PingMenu) then
             PingMenu = CreatePingMenu()
+            surface.PlaySound("common/wpn_select.wav")
         end
     end
 
@@ -114,7 +114,6 @@ if CLIENT then
 
     concommand.Add("+pingmenu", function(ply, command, arguments)
         OpenPingMenu(ply)
-        surface.PlaySound("common/wpn_select.wav")
     end)
 
     concommand.Add("-pingmenu", function(ply, command, arguments)
@@ -122,35 +121,13 @@ if CLIENT then
     end)
 
     --QuickPings
-    concommand.Add("quickping_def", function(ply, command, arguments)
-        PingMarker(LocalPlayer(), "default")
-    end)
-
-    concommand.Add("quickping_enemy", function(ply, command, arguments)
-        PingMarker(LocalPlayer(), "enemy")
-    end)
-
-    concommand.Add("quickping_defend", function(ply, command, arguments)
-        PingMarker(LocalPlayer(), "defend")
-    end)
-
-    concommand.Add("quickping_look", function(ply, command, arguments)
-        PingMarker(LocalPlayer(), "look")
-    end)
-
-    concommand.Add("quickping_supply", function(ply, command, arguments)
-        PingMarker(LocalPlayer(), "Supply")
-    end)
-
-    concommand.Add("quickping_assist", function(ply, command, arguments)
-        PingMarker(LocalPlayer(), "assist")
-    end)
-
-    concommand.Add("quickping_missing", function(ply, command, arguments)
-        PingMarker(LocalPlayer(), "missing")
-    end)
-
-
+    
+    local quickPingPrefix = "quickping_"
+    for pingType, _ in pairs(PING.pingPrefabs) do
+        concommand.Add(quickPingPrefix .. pingType, function(ply, command, arguments)
+            PingMarker(ply, pingType)
+        end)
+    end
 
     --Spawn Menu settings
     hook.Add("PopulateToolMenu", "AddPingSystemOptions", function()
