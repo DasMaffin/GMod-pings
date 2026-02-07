@@ -1,6 +1,4 @@
 if SERVER then
-    util.AddNetworkString("SendPingPosition")
-
     local function createPingMarker(pingPosition, ply, PingType, TeamPing, WhoPinged, parent)
         local WhoPinged = net.ReadString()  
         local Anim = net.ReadEntity()
@@ -78,7 +76,7 @@ if CLIENT then
         vguiElement:SetPos(frame:GetWide() / 2 - vguiElement:GetWide() / 2, 10)
         vguiElement.DoClick = function()
             PingMarker(User, "default")
-            surface.PlaySound("weapons/ar2/ar2_empty.wav")
+            User:EmitSound("weapons/ar2/ar2_empty.wav", 70, 100, PING.PingVolume/100)
             frame:Remove()
         end
     end
@@ -101,14 +99,14 @@ if CLIENT then
     function OpenPingMenu(ply)
         if not IsValid(PingMenu) then
             PingMenu = CreatePingMenu()
-            surface.PlaySound("common/wpn_select.wav")
+            User:EmitSound("common/wpn_select.wav", 70, 100, PING.PingVolume/100)
         end
     end
 
     function ClosePingMenu(ply)
         if IsValid(PingMenu) then
-            PingMenu:Remove()
-            surface.PlaySound("weapons/ar2/ar2_empty.wav")
+            PingMenu:Remove()            
+            User:EmitSound("weapons/ar2/ar2_empty.wav", 70, 100, PING.PingVolume/100)
         end
     end
 
