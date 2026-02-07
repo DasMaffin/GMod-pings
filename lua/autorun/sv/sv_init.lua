@@ -14,7 +14,6 @@ local function CollectPings()
     end
 
     return PingData
-
 end
 
 util.AddNetworkString("UpdatePingData")

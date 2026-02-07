@@ -121,14 +121,6 @@ if CLIENT then
         ClosePingMenu(ply)
     end)
 
-    net.Receive("OpenPingMenu", function(ply)
-        OpenPingMenu(ply)
-    end)
-
-    net.Receive("ClosePingMenu", function(ply)
-        ClosePingMenu(ply)
-    end)
-
     --QuickPings
     concommand.Add("quickping_def", function(ply, command, arguments)
         PingMarker(LocalPlayer(), "default")
@@ -173,7 +165,4 @@ if CLIENT then
 
         end)
     end)
-    
-    
-
 end
