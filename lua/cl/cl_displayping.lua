@@ -29,6 +29,7 @@ local function DisplayPings()
     local SurfaceDrawTexturedRectRotated = surface.DrawTexturedRectRotated
     local DrawSimpleText = draw.SimpleText
 
+    ply.ActivePings = 0
     for pingindex, ping in pairs(PingData) do
         local CanSeePings = GetConVar("pingsystem_allcansee"):GetBool()
         local validping = Entity(pingindex)
@@ -46,6 +47,10 @@ local function DisplayPings()
 
             local margin = 50
             local arrowMargin = 25
+
+            if ply:Nick() == Owner then
+                ply.ActivePings = ply.ActivePings + 1
+            end
 
             if math.abs(math.cos(OnScreenPingPosition)) * PingRadius > math.abs(math.sin(OnScreenPingPosition)) * PingRadius then
                 PingX = math.Clamp(PingX, margin, ScrW() - margin)
@@ -89,7 +94,6 @@ local function DisplayPings()
 
             if not validping.PingSoundPlayed then
                 chat.AddText(Color(plycolor.r, plycolor.g, plycolor.b, 255), Owner, Color(255,255,255), PING.pingPrefabs[PingType].message or " marked a location.")
-                print(PING.PingVolume)
                 ply:EmitSound(PingSound, 70, 100, PING.PingVolume/100)
                 validping.PingSoundPlayed = true
             end

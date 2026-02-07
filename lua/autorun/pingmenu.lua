@@ -38,11 +38,17 @@ end
 
 if CLIENT then
     local User = User or LocalPlayer()
-    hook.Add( "InitPostEntity", "some_unique_name", function()
+    hook.Add( "InitPostEntity", "Pings_Pingmenu_InitLocalPlayer", function()
         User = LocalPlayer()
     end )
 
     local function PingMarker(ply, pingtype)
+        local maxPings = GetConVar("pingsystem_maxpings"):GetInt()
+        if maxPings ~= 0 and ply.ActivePings >= maxPings then
+            chat.AddText(Color(230, 30, 30), "You have too many active pings! Please wait for some to expire before placing new ones.")
+            return
+        end
+
         local User = ply
         local tr = util.TraceLine({
             start = User:EyePos(),
@@ -95,7 +101,6 @@ if CLIENT then
         local offsetX, offsetY, yCounter = 15, 15, 0
         for _, key in ipairs(PING.pingOrder) do
             local val = PING.pingPrefabs[key]
-            print(key)
             createPingMenuEntry(key, val.material, frame, offsetX, offsetY)
 
             local offsetIncrease = 110
@@ -147,7 +152,6 @@ if CLIENT then
     --Spawn Menu settings
     hook.Add("PopulateToolMenu", "AddPingSystemOptions", function()
         spawnmenu.AddToolMenuOption("Options", "Aaron's Ping System", "PingSystemOptions", "Settings", "", "", function(panel)
-
             panel:AddControl("Slider", {
                 Label = "Ping Display Time:",
                 Command = "pingsystem_time",
@@ -155,6 +159,12 @@ if CLIENT then
                 Max = 60,
             })
 
+            panel:AddControl("Slider", {
+                Label = "Ping Sound Volume:",
+                Command = "pingsystem_volume",
+                Min = 0,
+                Max = 100,
+            })
         end)
     end)
 end

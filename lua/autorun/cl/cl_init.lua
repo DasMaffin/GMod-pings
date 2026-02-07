@@ -28,4 +28,10 @@ PING.pingPrefabs = {
     ["missing"] = {material = Material("materials/ping/missing.png"), message = " signals that enemies are missing."}
 }
 
+hook.Add( "InitPostEntity", "Pings_CreateLocalPlayerVariables", function()
+    local ply = LocalPlayer()
+    ply.ActivePings = ply.ActivePings or 0
+end)
+
+
 include("cl/cl_displayping.lua")
