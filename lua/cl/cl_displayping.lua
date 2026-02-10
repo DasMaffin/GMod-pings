@@ -3,7 +3,7 @@ local PingSound = Sound("npc/metropolice/vo/off2.wav")
 local EnemySound = Sound("npc/combine_gunship/gunship_ping_search.wav")
 local ArrowPing = Material("materials/ping/arrow.png")    
 
-local CanSeePings = CreateClientConVar("pingsystem_allcansee", 0, true, false, "Can all players see pings? (SERVER SETTING)", 0, 1)
+CreateClientConVar("pingsystem_allcansee", 0, true, false, "Can all players see pings? (SERVER SETTING)", 0, 1)
 
 local function CalculateDistanceToPing( units, speed )
     local feetMultiplier = 0.0625 --1/16 = 0.0625

@@ -7,7 +7,7 @@ end, "PingSystemVolumeWatcher")
 
 
 white = Color(255, 255, 255, 255)
-PING.pingOrder = { -- order in which pings are displayed in the menu
+PING.pingOrder = { -- order in which pings are displayed in the menu. Because why would lua load a dictionary in sequential order?
     "supply",
     "default",
     "attack",
@@ -33,5 +33,5 @@ hook.Add( "InitPostEntity", "Pings_CreateLocalPlayerVariables", function()
     ply.ActivePings = ply.ActivePings or 0
 end)
 
-
 include("cl/cl_displayping.lua")
+include("pingmenu.lua")
